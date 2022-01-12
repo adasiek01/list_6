@@ -61,22 +61,24 @@ class BinHeap:
     def isEmpty(self):
         return self.currentSize == 0
 
-    def sorting(self):
-        start = time.time()
-        for elements in self.heapList:
-            self.heapList.sort()
-        end = time.time()
-        alg_time = end - start
-        return alg_time
-
     def __str__(self):
         txt = "{}".format(self.heapList[1:])
         return txt
 
 
+def sorting(lista1):
+    start = time.time()
+    kop = BinHeap()
+    kop.buildHeap(lista1)
+    lista2 = []
+    for element in range(0, len(lista1)):
+        lista2.append(kop.findMin())
+        kop.delMin()
+    end = time.time()
+    alg_time = end - start
+    return lista2, alg_time
+
+
 if __name__ == '__main__':
-    bh = BinHeap()
-    print(bh.isEmpty())
-    bh.buildHeap([9, 2, 12, 13, 11, 88, 55, 44, 33, 6, 4, 13])
-    print(bh.sorting())
-    print(bh)
+    print(sorting([1, 4, 5, 8, 3, 2, 7, 4, 5, 3]))
+
