@@ -1,7 +1,8 @@
 class BinHeap:
-    def __init__(self):
+    def __init__(self, max_size):
         self.heapList = [0]
         self.currentSize = 0
+        self.max_size = max_size
 
     def percUp(self, i):
         while i // 2 > 0:
@@ -12,9 +13,20 @@ class BinHeap:
             i = i // 2
 
     def insert(self, k):
-        self.heapList.append(k)
-        self.currentSize = self.currentSize + 1
-        self.percUp(self.currentSize)
+        while self.size() > self.max_size:
+            self.delMin()
+        if self.size() < self.max_size:
+            self.heapList.append(k)
+            self.currentSize = self.currentSize + 1
+            self.percUp(self.currentSize)
+        elif self.size() == self.max_size:
+            if k <= self.findMin():
+                pass
+            else:
+                self.delMin()
+                self.heapList.append(k)
+                self.currentSize = self.currentSize + 1
+                self.percUp(self.currentSize)
 
     def findMin(self):
         return self.heapList[1]
@@ -46,18 +58,19 @@ class BinHeap:
         return retval
 
     def buildHeap(self, alist):
-        i = len(alist) // 2
-        self.currentSize = len(alist)
-        self.heapList = [0] + alist[:]
-        while (i > 0):
-            self.percDown(i)
-            i = i - 1
+        if self.size() <= self.max_size:
+            i = len(alist) // 2
+            self.currentSize = len(alist)
+            self.heapList = [0] + alist[:]
+            while (i > 0):
+                self.percDown(i)
+                i = i - 1
+            while self.size() > self.max_size:
+                self.delMin()
 
-    def size(self, n):
-        if self.currentSize > n:
-            return ValueError
-        else:
-            return self.currentSize
+
+    def size(self):
+        return self.currentSize
 
     def isEmpty(self):
         return self.currentSize == 0
@@ -66,7 +79,9 @@ class BinHeap:
         txt = "{}".format(self.heapList[1:])
         return txt
 
+
 if __name__ == '__main__':
-    bh = BinHeap()
-    bh.buildHeap([9, 5, 6, 2, 3])
-    print(bh.size(9))
+    bh = BinHeap(2)
+    bh.buildHeap([9, 5, 6, 2])
+    bh.insert(7)
+    print(bh)
