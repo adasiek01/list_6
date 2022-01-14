@@ -51,3 +51,8 @@ class BinaryTree:
 
     def getRootVal(self):
         return self.key
+
+
+def derivative(tree, x, n):
+    for elements in range(len(tree)):
+        return None
