@@ -27,6 +27,7 @@ class BinHeap:
                 self.heapList.append(k)
                 self.currentSize = self.currentSize + 1
                 self.percUp(self.currentSize)
+        self.heapList.sort()
 
     def findMin(self):
         return self.heapList[1]
@@ -58,6 +59,7 @@ class BinHeap:
         return retval
 
     def buildHeap(self, alist):
+       
         if self.size() <= self.max_size:
             i = len(alist) // 2
             self.currentSize = len(alist)
@@ -67,6 +69,7 @@ class BinHeap:
                 i = i - 1
             while self.size() > self.max_size:
                 self.delMin()
+        self.heapList.sort()
 
 
     def size(self):
@@ -81,7 +84,8 @@ class BinHeap:
 
 
 if __name__ == '__main__':
-    bh = BinHeap(2)
-    bh.buildHeap([9, 5, 6, 2])
+    bh = BinHeap(5)
+    bh.buildHeap([9, 5, 6, 2,7,20,11,4])
     bh.insert(7)
+    bh.insert(19)
     print(bh)
