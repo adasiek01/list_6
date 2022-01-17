@@ -1,8 +1,11 @@
 class Stack:
+    """
+    Implementation from lecture
+    """
     def __init__(self):
         self.items = []
 
-    def isEmpty(self):
+    def is_empty(self):
         return self.items == []
 
     def push(self, item):
@@ -18,67 +21,311 @@ class Stack:
         return len(self.items)
 
 
-class BinaryTree:
-    def __init__(self, rootObj):
-        self.key = rootObj
-        self.leftChild = None
-        self.rightChild = None
+class Binary_Tree:
+    """
+    Class that creates binary tree
+    """
+    def __init__(self, key):
+        """
+        Function that creates binary tree
+        self.key - key in tree
+        """
+        self.key = key
+        self.left_child = None
+        self.right_child = None
 
-    def insertLeft(self, newNode):
-        if self.leftChild == None:
-            self.leftChild = BinaryTree(newNode)
+    def insert_left(self, new_node):
+        """
+        Function that adds left child
+        :param: new_mode node to add
+        """
+
+        if self.left_child == None:
+            self.left_child = Binary_Tree(new_node)
         else:
-            t = BinaryTree(newNode)
-            t.leftChild = self.leftChild
-            self.leftChild = t
+            t = Binary_Tree(new_node)
+            t.left_child = self.left_child
+            self.left_child = t
 
-    def insertRight(self, newNode):
-        if self.rightChild == None:
-            self.rightChild = BinaryTree(newNode)
+    def insert_right(self, new_node):
+        """
+        Function that adds right child
+        :param: new_mode node to add
+        """
+
+        if self.right_child == None:
+            self.right_child = Binary_Tree(new_node)
         else:
-            t = BinaryTree(newNode)
-            t.rightChild = self.rightChild
-            self.rightChild = t
+            t = Binary_Tree(new_node)
+            t.right_child = self.right_child
+            self.right_child = t
 
-    def getRightChild(self):
-        return self.rightChild
+    def get_right_child(self):
+        """
+        Function that finds right child
+        return: right child
+        """
+        return self.right_child
 
-    def getLeftChild(self):
-        return self.leftChild
+    def get_left_child(self):
+        """
+        Function that finds left child
+        return: left child
+        """
+        return self.left_child
 
-    def setRootVal(self, obj):
-        self.key = obj
+    def set_root_key(self, key):
+        """
+        Function that sets root's key
+        """
+        self.key = key
 
-    def getRootVal(self):
+    def get_root_key(self):
+        """
+        Function that finds root's key
+        return: key
+        """
         return self.key
 
 
-def buildParseTree(fpexp):
+def build_parse_tree(fpexp):
+    """
+    Implementation from lecture
+    """
     fplist = fpexp.split()
     pStack = Stack()
-    eTree = BinaryTree('')
+    eTree = Binary_Tree("")
     pStack.push(eTree)
-    currentTree = eTree
+    current_tree = eTree
     for i in fplist:
-        if i == '(':
-            currentTree.insertLeft('')
-            pStack.push(currentTree)
-            currentTree = currentTree.getLeftChild()
-        elif i not in ['+', '-', '*', '/', ')']:
-            currentTree.setRootVal(int(i))
-            parent = pStack.pop()
-            currentTree = parent
-        elif i in ['+', '-', '*', '/']:
-            currentTree.setRootVal(i)
-            currentTree.insertRight('')
-            pStack.push(currentTree)
-            currentTree = currentTree.getRightChild()
-        elif i in ['sin', 'cos', 'tg', 'ctg', 'log', 'exp']:
-            currentTree.setRootVal(i)
-            currentTree.insertLeft('')
-            currentTree = currentTree.getLeftChild()
-        elif i == ')':
-            currentTree = pStack.pop()
+        if i == "(":
+            current_tree.insert_left("")
+            pStack.push(current_tree)
+            current_tree = current_tree.get_left_child()
+        elif i in ["+", "-", "*", "/", "**"]:
+            current_tree.set_root_key(i)
+            current_tree.insert_right("")
+            pStack.push(current_tree)
+            current_tree = current_tree.get_right_child()
+        elif i in ["sin", "cos", "tg", "ctg", "log"]:
+            current_tree = pStack.pop()
+            current_tree.left_child = None
+            current_tree.set_root_key(i)
+            current_tree.insert_right("")
+            pStack.push(current_tree)
+            current_tree = current_tree.get_right_child()
+        elif i.isalpha(): #i is a letter
+            current_tree.set_root_key(i)
+            current_tree = pStack.pop()
+        elif i.isdigit(): #i is a digit
+            current_tree.set_root_key(int(i))
+            current_tree = pStack.pop()
+        elif i in ["sin", "cos", "tg", "ctg", "log", "exp"]:
+            current_tree = pStack.pop()
+            current_tree.left_child = None
+            current_tree.set_root_key(i)
+            current_tree.insert_right("")
+            pStack.push(current_tree)
+            current_tree = current_tree.get_right_child()
+        elif i == ")":
+            current_tree = pStack.pop()
         else:
             raise ValueError
     return eTree
+
+class ErrorComplexExpression(Exception):
+    pass
+class ErrorInvalidTree(Exception):
+    pass
+
+
+def printexp(tree):
+    """
+    Implementation from lecture
+    """
+    sVal = ""
+    if tree:
+        sVal = "(" + printexp(tree.get_left_child())
+        sVal = sVal + str(tree.get_root_key())
+        sVal = sVal + printexp(tree.get_right_child())+")"
+    return sVal
+
+
+def variable_in_expression(tree, variable):
+    """
+    Function checks if variable is in expression
+    :param: tree - our tree
+    :param: variable - some variable
+    """
+    if tree:
+        return tree.get_root_key() == variable or variable_in_expression(tree.get_left_child(), variable) or variable_in_expression(tree.get_right_child(), variable)     
+    else:
+        return False
+
+
+def count_derivative(tree, variable):
+    """
+    Function that counts derivative
+    :param: tree - our tree
+    :param: variable - some variable
+    """
+    derivative_tree = Binary_Tree("")
+    left_child = tree.get_left_child()
+    right_child = tree.get_right_child()
+    root_key = tree.get_root_key()
+
+    if left_child and right_child:
+
+        if root_key == "+":
+            derivative_tree.set_root_key("+")
+            derivative_tree.left_child = count_derivative(left_child, variable)
+            derivative_tree.right_child = count_derivative(right_child, variable)
+
+        elif root_key == "-":
+            derivative_tree.set_root_key("-")
+            derivative_tree.left_child = count_derivative(left_child, variable)
+            derivative_tree.right_child = count_derivative(right_child, variable)
+
+        elif root_key == "*":
+            derivative_tree.set_root_key("+")
+            derivative_tree.left_child = Binary_Tree("")
+            derivative_tree.left_child.set_root_key("*")
+            derivative_tree.left_child.left_child = count_derivative(left_child, variable)
+            derivative_tree.left_child.right_child = right_child
+            derivative_tree.right_child = Binary_Tree("")
+            derivative_tree.right_child.set_root_key("*")
+            derivative_tree.right_child.left_child = left_child
+            derivative_tree.right_child.right_child = count_derivative(right_child, variable)
+            
+        elif root_key == "/":
+            derivative_tree.set_root_key("/")
+            derivative_tree.left_child = Binary_Tree("")
+            derivative_tree.left_child.set_root_key("-")
+            derivative_tree.left_child.left_child = Binary_Tree("")
+            derivative_tree.left_child.right_child = Binary_Tree("")
+            derivative_tree.left_child.left_child.set_root_key("*")
+            derivative_tree.left_child.left_child.left_child = count_derivative(left_child, variable)
+            derivative_tree.left_child.left_child.right_child = right_child
+            derivative_tree.left_child.right_child.set_root_key("*")
+            derivative_tree.left_child.right_child.left_child = left_child
+            derivative_tree.left_child.right_child.right_child = count_derivative(right_child, variable)
+            derivative_tree.right_child = Binary_Tree("")
+            derivative_tree.right_child.set_root_key("**")
+            derivative_tree.right_child.left_child = right_child
+            derivative_tree.right_child.right_child = Binary_Tree("")
+            derivative_tree.right_child.right_child.set_root_key(2)
+
+        elif root_key == "**":
+            left_has_variable = variable_in_expression(left_child, variable)
+            right_has_variable = variable_in_expression(right_child, variable)
+
+            if left_has_variable and right_has_variable:
+                raise ErrorComplexExpression
+
+            elif left_has_variable:
+                derivative_tree.set_root_key("*")
+                derivative_tree.left_child = right_child
+                derivative_tree.right_child = Binary_Tree("")
+                derivative_tree.right_child.set_root_key("**")
+                derivative_tree.right_child.left_child = left_child
+                derivative_tree.right_child.right_child = Binary_Tree("")
+                derivative_tree.right_child.right_child.set_root_key("-")
+                derivative_tree.right_child.right_child.left_child = right_child
+                derivative_tree.right_child.right_child.right_child = Binary_Tree("")
+                derivative_tree.right_child.right_child.right_child.set_root_key(1)
+
+            elif right_has_variable:
+                derivative_tree.set_root_key("*")
+                derivative_tree.left_child = Binary_Tree("")
+                derivative_tree.left_child.set_root_key("**")
+                derivative_tree.right_child = Binary_Tree("")
+                derivative_tree.right_child.set_root_key("log")
+
+                derivative_tree.left_child.left_child = left_child
+                derivative_tree.left_child.right_child = right_child
+                derivative_tree.right_child.right_child = left_child
+
+            else: derivative_tree.set_root_key(0)
+
+        else: 
+            raise ErrorInvalidTree
+
+    elif right_child:
+        if root_key == "log":
+            derivative_tree.set_root_key("*")
+            derivative_tree.left_child = Binary_Tree("")
+            derivative_tree.left_child.set_root_key("/")
+            derivative_tree.right_child = count_derivative(right_child, variable)
+            derivative_tree.left_child.left_child = Binary_Tree("")
+            derivative_tree.left_child.left_child.set_root_key(1)
+            derivative_tree.left_child.right_child = right_child
+
+        elif root_key == "sin":
+            derivative_tree.set_root_key("*")
+            derivative_tree.left_child = Binary_Tree("")
+            derivative_tree.left_child.set_root_key("cos")
+            derivative_tree.left_child.right_child = right_child
+            derivative_tree.right_child = count_derivative(right_child, variable)
+
+        elif root_key == "cos":
+            derivative_tree.set_root_key("*")
+            derivative_tree.left_child = Binary_Tree("")
+            derivative_tree.left_child.set_root_key("*")
+            derivative_tree.left_child.left_child = Binary_Tree("")
+            derivative_tree.left_child.left_child.set_root_key(-1)
+            derivative_tree.left_child.right_child = Binary_Tree("")
+            derivative_tree.left_child.right_child.set_root_key("sin")
+            derivative_tree.left_child.right_child.right_child = right_child
+            derivative_tree.right_child = count_derivative(right_child, variable)
+
+        elif root_key == "tg":
+            derivative_tree.set_root_key("*")
+            derivative_tree.left_child = Binary_Tree("")
+            derivative_tree.left_child.set_root_key("/")
+            derivative_tree.left_child.left_child = Binary_Tree("")
+            derivative_tree.left_child.left_child.set_root_key(1)
+            derivative_tree.left_child.right_child = Binary_Tree("")
+            derivative_tree.left_child.right_child.set_root_key("**")
+            derivative_tree.left_child.right_child.left_child = Binary_Tree("")
+            derivative_tree.left_child.right_child.left_child.set_root_key("cos")
+            derivative_tree.left_child.right_child.right_child = Binary_Tree("")
+            derivative_tree.left_child.right_child.right_child.set_root_key(2)
+            derivative_tree.left_child.right_child.left_child.right_child = right_child
+            derivative_tree.right_child = count_derivative(right_child, variable)
+
+        elif root_key == "ctg":
+            derivative_tree.set_root_key("*")
+            derivative_tree.left_child = Binary_Tree("")
+            derivative_tree.left_child.set_root_key("/")
+            derivative_tree.left_child.left_child = Binary_Tree("")
+            derivative_tree.left_child.left_child.set_root_key(-1)
+            derivative_tree.left_child.right_child = Binary_Tree("")
+            derivative_tree.left_child.right_child.set_root_key("**")
+            derivative_tree.left_child.right_child.left_child = Binary_Tree("")
+            derivative_tree.left_child.right_child.left_child.set_root_key("sin")
+            derivative_tree.left_child.right_child.right_child = Binary_Tree("")
+            derivative_tree.left_child.right_child.right_child.set_root_key(2)
+            derivative_tree.left_child.right_child.left_child.right_child = right_child
+            derivative_tree.right_child = count_derivative(right_child, variable)
+
+        else:
+            raise ErrorInvalidTree
+    
+    else:
+        if root_key == variable:
+            derivative_tree.set_root_key(1)
+        else:
+            derivative_tree.set_root_key(0)
+
+    return derivative_tree
+
+expression = build_parse_tree("( ( cos x ) + ( 2 * ( sin x ) ) )")
+print(printexp(expression))
+
+print(printexp(count_derivative(expression, "x")))
+
+
+
+
+
+
