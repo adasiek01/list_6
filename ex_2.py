@@ -1,4 +1,7 @@
 import time
+import random
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 class BinHeap:
@@ -133,7 +136,28 @@ def sorting(list1):
     return list2, alg_time
 
 
+def graph():
+    """
+    Function that draws the graph, we multiply nlog(n) by 10**(-5.76) to fit the curve
+    """
+    l1 = []
+    l2 = []
+    l3 = []
+    for i in range(1, 1000):
+        time = sorting([random.randint(1, 100) for i in range(i)])[1]
+        l1.append(i)
+        l2.append(time)
+        l3.append(np.log(i)*i*10**(-5.76))
+    plt.scatter(l1, l2, color='black')
+    plt.plot(l1, l3, color='r')
+    plt.xlabel("amount of elements")
+    plt.ylabel("time")
+    plt.gca().legend(('n*log(n)', 'results without approximation'))
+    plt.show()
+
+
 if __name__ == '__main__':
-    print(sorting([1, 4, 5, 8, 3, 2, 7, 4, 5, 3]))
+    graph()
+
 
 
